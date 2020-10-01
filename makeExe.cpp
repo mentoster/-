@@ -1,6 +1,7 @@
 #include <iostream>
 int main()
 {
+    // commands for making exe
     std::printf("Start making exe....");
     std::system("pyinstaller -F -w -i D:\\YandexDisk\\GitHub\\Python\\todocx\\ico.ico main.py");
     std::printf("\n\nMade it.");
