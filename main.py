@@ -76,9 +76,6 @@ TestImage = InlineImage(doc, Values['Открыть0'])
 # меняем отступ на нужный  для word
 Values[7] = Values[7].replace("\n", "<w:br/>")
 
-# 3
-if not '/' in Values['Открыть1']:
-    Values['Открыть1'] = ImpValues['Открыть1']
 # копируем наш код из файлика
 f = open(Values['Открыть1'].replace('/', '\\'),
          'r', encoding='utf-8')
