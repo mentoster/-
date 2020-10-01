@@ -1,7 +1,6 @@
 from docxtpl import DocxTemplate, InlineImage
 import PySimpleGUI as sg
 from json import load, dump
-from os import system
 sg.theme('Dark Blue 3')
 # читаем кэш
 ImpValues = load(open("UserData", encoding='utf-8'))
@@ -103,5 +102,4 @@ context = {'НомерРаботы': Values[0],
 # делаем отчет
 doc.render(context)
 doc.save("Отчет - "+Values[1]+".docx")
-system('start'+'Отчет - "+Values[1]+".docx')
 window.close()
