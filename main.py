@@ -64,8 +64,10 @@ window = sg.Window(
 # read input
 while True:
     event, Values = window.read()
-    event = int(event.replace(".Сделать красиво"))
-    print("event "+str(type(event))+": "+str(event))
+    if type(event) == str:
+        event = int(event.replace(".Сделать красиво", ""))
+    else:
+        break
     doc = DocxTemplate("examples/аод example.docx")
     for (word, importWords) in zip(Values, ImpValues):
         # load cache
@@ -88,7 +90,7 @@ while True:
 
     # make a report
     doc.render(context)
-    doc.save("Отчет - "+context['темаРаботы']+".docx")
+    doc.save("Отчет - "+context['ТемаРаботы']+".docx")
     # replace img to way
     for word in Values:
         if(type(Values[word]) == list):
