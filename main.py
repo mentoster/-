@@ -4,7 +4,7 @@ from json import load, dump
 # theme
 sg.theme('BlueMono')
 # read the cache
-ImpValues = load(open("UserData.json", encoding='utf-8'))
+ImpValues = load(open("Data.json", encoding='utf-8'))
 
 
 def makecontext(tab, Values):
@@ -73,11 +73,11 @@ tab_html = ([sg.Text('Номер Работы:'), sg.Input(ImpValues['11'])],
             [sg.Text('описание задания:')],
             [sg.Multiline(ImpValues['15'])],
             [sg.Text('код'), sg.Text(
-                ImpValues['Open']), sg.FileBrowse('Open2')],
+                ImpValues['Open2']), sg.FileBrowse('Open2')],
             [sg.Text('css код'), sg.Text(
-                ImpValues['Open']), sg.FileBrowse('Open3')],
+                ImpValues['Open3']), sg.FileBrowse('Open3')],
             [sg.Text('рисунок сайта'), sg.Text(
-                ImpValues['Open']), sg.FileBrowse('Open4')],
+                ImpValues['Open4']), sg.FileBrowse('Open4')],
             [sg.Text('вывод :'), sg.Input(ImpValues['16'])],
             [sg.Button('2.Сделать красиво')])
 
@@ -126,7 +126,7 @@ while True:
         if(type(Values[word]) == list):
             Values[word] = Values[word][1]
     # save cache
-    # dump(Values, open("UserData.json", 'w', encoding='utf-8'))
+    dump(Values, open("Data.json", 'w', encoding='utf-8'))
     if event in (sg.WIN_CLOSED, 'Exit'):
         break
 window.close()
