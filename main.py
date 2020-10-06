@@ -1,105 +1,86 @@
 from docxtpl import DocxTemplate, InlineImage
 import PySimpleGUI as sg
 from json import load, dump
-sg.theme('Dark Blue 3')
-# читаем кэш
-ImpValues = load(open("UserData", encoding='utf-8'))
+sg.theme('BlueMono')
+# read the cache
+ImpValues = load(open("UserData.json", encoding='utf-8'))
 
-"""
-Переменные:
-1  : НомерРаботы
-2  : ТемаРаботы
-3  : автор
-4  : цельРаботы
-5  : постановкаЗадачи
-6  : описаниеВарианта
-7  : ТеорияПоТеме
-8  : структурыКода
-9  : интерфейс
-10 : описаниеТестирования
-11 : рисунокТеста
-12 : Освоил : вывод1
-13 : Научился: вывод2
-14 : исходныйКод
-"""
-layout = ([sg.Text('Номер Работы:'), sg.Input(ImpValues['0'])],  # 0
-          [sg.Text('Тема работы:'), sg.Input(ImpValues['1'])],  # 1
-          [sg.Text('Автор:'), sg.Input(ImpValues['2'])],  # 2
-          [sg.Text('Цель работы:')],
-          [sg.Multiline(ImpValues['3'])],  # 3
-          [sg.Text('Постановка задачи:')],
-          [sg.Multiline(ImpValues['4'])],  # 4
-          [sg.Text('описание Варианта:')],
-          [sg.Multiline(ImpValues['5'])],  # 5
-          [sg.Text('Теория По Теме:')],
-          [sg.Multiline(ImpValues['6'])],  # 6
-          [sg.Text('структуры Кода:')],
-          [sg.Multiline(ImpValues['7'])],  # 7
-          [sg.Text('интерфейс (картинка):'), sg.Text(
-              ImpValues['Открыть']), sg.FileBrowse('Открыть')],
-          [sg.Text('что тестируем:')],
-          [sg.Multiline(ImpValues['8'])],  # 8
-          [sg.Text('рисунокТеста:'), sg.Text(
-              ImpValues['Открыть0']), sg.FileBrowse('Открыть')],
-          [sg.Text('Освоил:'), sg.Input(ImpValues['9'])],  # 9
-          [sg.Text('Научился:'), sg.Input(ImpValues['10'])],  # 10
-          [sg.Text('исходный Код:'), sg.Text(
-              ImpValues['Открыть1']), sg.FileBrowse('Открыть')],
-          [sg.Button('Сделать красиво')])
+tab_aod = ([sg.Text('Номер Работы:'), sg.Input(ImpValues['0'])],  # 0
+           [sg.Text('Тема работы:'), sg.Input(ImpValues['1'])],  # 1
+           [sg.Text('Автор:'), sg.Input(ImpValues['2'])],  # 2
+           [sg.Text('Цель работы:')],
+           [sg.Multiline(ImpValues['3'])],  # 3
+           [sg.Text('Постановка задачи:')],
+           [sg.Multiline(ImpValues['4'])],  # 4
+           [sg.Text('описание Варианта:')],
+           [sg.Multiline(ImpValues['5'])],  # 5
+           [sg.Text('Теория По Теме:')],
+           [sg.Multiline(ImpValues['6'])],  # 6
+           [sg.Text('структуры Кода:')],
+           [sg.Multiline(ImpValues['7'])],  # 7
+           [sg.Text('интерфейс (картинка):'), sg.Text(
+               ImpValues['Open']), sg.FileBrowse('Open')],
+           [sg.Text('что тестируем:')],
+           [sg.Multiline(ImpValues['8'])],  # 8
+           [sg.Text('рисунокТеста:'), sg.Text(
+               ImpValues['Open0']), sg.FileBrowse('Open')],
+           [sg.Text('Освоил:'), sg.Input(ImpValues['9'])],  # 9
+           [sg.Text('Научился:'), sg.Input(ImpValues['10'])],  # 10
+           [sg.Text('исходный Код:'), sg.Text(
+               ImpValues['Open1']), sg.FileBrowse('Open')],
+           [sg.Button('Сделать красиво')])
+
+tab_html = ()
+
+layout = [[sg.TabGroup([[sg.Tab('АОД', tab_aod),
+                         sg.Tab('HTML', tab_html)]])]]
 window = sg.Window(
-    'АвтоОтчетер (АОД edition) v1 by D.Makarov', layout, icon="ico.ico")
-# считываем данные после прочтения
-vent, Values = window.read()
-# пишем кэш пользователя
+    'АвтоОтчетер  v1.1 by D.Makarov', layout, icon="ico.ico")
+# read input
+while True:
+    event, Values = window.read()
+    doc = DocxTemplate("examples/аод example.docx")
+    for (word, importWords) in zip(Values, ImpValues):
+        # load cache
+        if len(Values[word]) == 0:
+            Values[word] = ImpValues[importWords]
+        # open imagine
+        Values[word] = Values[word].replace('/', '\\')
+        if (".png" or ".jpg") in Values[word]:
+            Values[word] = [InlineImage(doc, Values[word]), Values[word]]
+        # open files
+        elif "\\" in Values[word]:
+            f = open(Values[word], 'r', encoding='utf-8')
+            # change forbidden characters to valid for word
+            Values[word] = [f.read().replace('<', '&lt;').replace(
+                '>', '&gt;').replace("\n", "<w:br/>"), Values[word]]
+            f.close()
 
-for (words, importWords) in zip(Values, ImpValues):
-    if len(Values[words]) == 0:
-        Values[words] = ImpValues[importWords]
-
-dump(Values, open("UserData", 'w', encoding='utf-8'))
-
-doc = DocxTemplate("example.docx")
-
-# переносим картинки
-# обрабатываем полученные данные
-# 1
-
-Values['Открыть'] = Values['Открыть'].replace('/', '\\')
-InterfaceImage = InlineImage(doc, Values['Открыть'])
-
-# 2
-
-Values['Открыть0'] = Values['Открыть0'].replace('/', '\\')
-TestImage = InlineImage(doc, Values['Открыть0'])
-
-# меняем отступ на нужный  для word
-Values[7] = Values[7].replace("\n", "<w:br/>")
-
-# копируем наш код из файлика
-f = open(Values['Открыть1'].replace('/', '\\'),
-         'r', encoding='utf-8')
-# меняем запрещенные символы на допустимые для word
-Values['Открыть1'] = f.read().replace('<', '&lt;').replace(
-    '>', '&gt;').replace("\n", "<w:br/>")
-f.close()
-
-# заполняем документ
-context = {'НомерРаботы': Values[0],
-           'ТемаРаботы': Values[1],
-           'автор': Values[2],
-           'цельРаботы': Values[3],
-           'постановкаЗадачи': Values[4],
-           'описаниеВарианта': Values[5],
-           'ТеорияПоТеме': Values[6],
-           'структурыКода': Values[7],
-           'интерфейс': InterfaceImage,
-           'описаниеТестирования': Values[8],
-           'рисунокТеста': TestImage,
-           'вывод1': Values[9],
-           'вывод2': Values[10],
-           'исходныйКод': Values['Открыть1'],
-           }
-# делаем отчет
-doc.render(context)
-doc.save("Отчет - "+Values[1]+".docx")
+    # fill out the document
+    context = {'НомерРаботы': Values[0],
+               'ТемаРаботы': Values[1],
+               'автор': Values[2],
+               'цельРаботы': Values[3],
+               'постановкаЗадачи': Values[4],
+               'описаниеВарианта': Values[5],
+               'ТеорияПоТеме': Values[6],
+               'структурыКода': Values[7],
+               'интерфейс': Values['Open'][0],
+               'описаниеТестирования': Values[8],
+               'рисунокТеста': Values['Open0'][0],
+               'вывод1': Values[9],
+               'вывод2': Values[10],
+               'исходныйКод': Values['Open1'][0],
+               }
+    # make a report
+    doc.render(context)
+    doc.save("Отчет - "+Values[1]+".docx")
+    # replace img to way
+    for word in Values:
+        if(type(Values[word]) == list):
+            Values[word] = Values[word][1]
+    # save cache
+    dump(Values, open("UserData.json", 'w', encoding='utf-8'))
+    if event in (sg.WIN_CLOSED, 'Exit'):
+        break
 window.close()
