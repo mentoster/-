@@ -1,9 +1,34 @@
 from docxtpl import DocxTemplate, InlineImage
 import PySimpleGUI as sg
 from json import load, dump
+# theme
 sg.theme('BlueMono')
 # read the cache
 ImpValues = load(open("UserData.json", encoding='utf-8'))
+
+
+def makecontext(tab, Values):
+    context = {}
+    if tab == 1:
+        context = {'НомерРаботы': Values[0],
+                   'ТемаРаботы': Values[1],
+                   'автор': Values[2],
+                   'цельРаботы': Values[3],
+                   'постановкаЗадачи': Values[4],
+                   'описаниеВарианта': Values[5],
+                   'ТеорияПоТеме': Values[6],
+                   'структурыКода': Values[7],
+                   'интерфейс': Values['Open'][0],
+                   'описаниеТестирования': Values[8],
+                   'рисунокТеста': Values['Open0'][0],
+                   'вывод1': Values[9],
+                   'вывод2': Values[10],
+                   'исходныйКод': Values['Open1'][0],
+                   }
+    elif tab == 2:
+        pass
+    return context
+
 
 tab_aod = ([sg.Text('Номер Работы:'), sg.Input(ImpValues['0'])],  # 0
            [sg.Text('Тема работы:'), sg.Input(ImpValues['1'])],  # 1
@@ -28,7 +53,7 @@ tab_aod = ([sg.Text('Номер Работы:'), sg.Input(ImpValues['0'])],  # 0
            [sg.Text('Научился:'), sg.Input(ImpValues['10'])],  # 10
            [sg.Text('исходный Код:'), sg.Text(
                ImpValues['Open1']), sg.FileBrowse('Open')],
-           [sg.Button('Сделать красиво')])
+           [sg.Button('1.Сделать красиво')])
 
 tab_html = ()
 
@@ -39,6 +64,8 @@ window = sg.Window(
 # read input
 while True:
     event, Values = window.read()
+    event = int(event.replace(".Сделать красиво"))
+    print("event "+str(type(event))+": "+str(event))
     doc = DocxTemplate("examples/аод example.docx")
     for (word, importWords) in zip(Values, ImpValues):
         # load cache
@@ -57,24 +84,11 @@ while True:
             f.close()
 
     # fill out the document
-    context = {'НомерРаботы': Values[0],
-               'ТемаРаботы': Values[1],
-               'автор': Values[2],
-               'цельРаботы': Values[3],
-               'постановкаЗадачи': Values[4],
-               'описаниеВарианта': Values[5],
-               'ТеорияПоТеме': Values[6],
-               'структурыКода': Values[7],
-               'интерфейс': Values['Open'][0],
-               'описаниеТестирования': Values[8],
-               'рисунокТеста': Values['Open0'][0],
-               'вывод1': Values[9],
-               'вывод2': Values[10],
-               'исходныйКод': Values['Open1'][0],
-               }
+    context = makecontext(event, Values)
+
     # make a report
     doc.render(context)
-    doc.save("Отчет - "+Values[1]+".docx")
+    doc.save("Отчет - "+context['темаРаботы']+".docx")
     # replace img to way
     for word in Values:
         if(type(Values[word]) == list):
