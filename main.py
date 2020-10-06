@@ -26,7 +26,17 @@ def makecontext(tab, Values):
                    'исходныйКод': Values['Open1'][0],
                    }
     elif tab == 2:
-        pass
+        context = {'НомерРаботы': Values[11],
+                   'ТемаРаботы': Values[12],
+                   'автор': Values[2],
+                   'Название': Values[13],
+                   'задание': Values[14],
+                   'описание': Values[15],
+                   'код': Values['Open2'][0],
+                   'css': Values['Open3'][0],
+                   'рисунок': Values['Open4'][0],
+                   'вывод': Values[16],
+                   }
     return context
 
 
@@ -55,7 +65,21 @@ tab_aod = ([sg.Text('Номер Работы:'), sg.Input(ImpValues['0'])],  # 0
                ImpValues['Open1']), sg.FileBrowse('Open')],
            [sg.Button('1.Сделать красиво')])
 
-tab_html = ()
+tab_html = ([sg.Text('Номер Работы:'), sg.Input(ImpValues['11'])],
+            [sg.Text('Тема работы:'), sg.Input(ImpValues['12'])],
+            [sg.Text('автор'), sg.Input(ImpValues['2'])],
+            [sg.Text('Название практического задания:'),
+             sg.Input(ImpValues['13'])],
+            [sg.Text('описание задания:')],
+            [sg.Multiline(ImpValues['15'])],
+            [sg.Text('код'), sg.Text(
+                ImpValues['Open']), sg.FileBrowse('Open2')],
+            [sg.Text('css код'), sg.Text(
+                ImpValues['Open']), sg.FileBrowse('Open3')],
+            [sg.Text('рисунок сайта'), sg.Text(
+                ImpValues['Open']), sg.FileBrowse('Open4')],
+            [sg.Text('вывод :'), sg.Input(ImpValues['16'])],
+            [sg.Button('2.Сделать красиво')])
 
 layout = [[sg.TabGroup([[sg.Tab('АОД', tab_aod),
                          sg.Tab('HTML', tab_html)]])]]
@@ -68,7 +92,8 @@ while True:
         event = int(event.replace(".Сделать красиво", ""))
     else:
         break
-    doc = DocxTemplate("examples/аод example.docx")
+    doc = DocxTemplate("examples/"+str(event)+".docx")
+
     for (word, importWords) in zip(Values, ImpValues):
         # load cache
         if len(Values[word]) == 0:
@@ -79,15 +104,20 @@ while True:
             Values[word] = [InlineImage(doc, Values[word]), Values[word]]
         # open files
         elif "\\" in Values[word]:
-            f = open(Values[word], 'r', encoding='utf-8')
-            # change forbidden characters to valid for word
-            Values[word] = [f.read().replace('<', '&lt;').replace(
-                '>', '&gt;').replace("\n", "<w:br/>"), Values[word]]
-            f.close()
+            try:
+                f = open(Values[word], 'r', encoding='utf-8')
+                # change forbidden characters to valid for word
+                Values[word] = [f.read().replace('<', '&lt;').replace(
+                    '>', '&gt;').replace("\n", "<w:br/>"), Values[word]]
+                f.close()
+            except exp as identifier:
+                f = open(Values[word], 'r', encoding='utf-8')
+                Values[word] = [f.read().replace('<', '&lt;').replace(
+                    '>', '&gt;').replace("\n", "<w:br/>"), Values[word]]
+                f.close()
 
     # fill out the document
     context = makecontext(event, Values)
-
     # make a report
     doc.render(context)
     doc.save("Отчет - "+context['ТемаРаботы']+".docx")
@@ -96,7 +126,7 @@ while True:
         if(type(Values[word]) == list):
             Values[word] = Values[word][1]
     # save cache
-    dump(Values, open("UserData.json", 'w', encoding='utf-8'))
+    # dump(Values, open("UserData.json", 'w', encoding='utf-8'))
     if event in (sg.WIN_CLOSED, 'Exit'):
         break
 window.close()
